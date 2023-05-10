@@ -21,8 +21,8 @@ app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
 // --routes--
-app.use("/login", authRoutes);
-app.use("/secret", secretRoutes);
+app.use("/", authRoutes);
+app.use("/", secretRoutes);
 
 app.get("/", (req, res) => {
   res.send("Implementation of Token-based authentication using JWT on Node apps.");
