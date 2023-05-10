@@ -5,7 +5,7 @@ const isUserAuthenticated = async(req, res, next) => {
   let token;
    
   // authorization through cookies
-  if(req.cookies.access_token) {
+  if(req.cookies.accessToken) {
     token = req.cookies.access_token;
   }
 
@@ -21,7 +21,7 @@ const isUserAuthenticated = async(req, res, next) => {
 
   // if there is no token found from req, token will be undefined
   if(!token) { 
-   res.redirect("/login"); 
+   res.redirect("/login");
    return;
   } 
 
@@ -35,7 +35,19 @@ const isUserAuthenticated = async(req, res, next) => {
 
     next();
   } catch(err) {
-    console.log(err)
+    if(err.name === "JsonWebTokenError") {
+      res.redirect("/login");
+      return;
+    }
+    
+    if(err.name === "TokenExpiredError") {
+      res.redirect("/refresh-tokens");
+      return;
+    }
+
+    // use a logging library for err if you want,
+    // this is just for demonstration purposes
+    console.log(err);
   }
 
 }
