@@ -23,7 +23,6 @@ const findUserFromDb = async(username, password) => {
 }
 
 const findUserFromDbWithUsername = async(username) => {
-
   try{
     let foundUser = await db.promise().query("SELECT * FROM users WHERE username = ?", [username]);
 
