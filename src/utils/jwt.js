@@ -23,22 +23,21 @@ const generateRefreshToken = (user) => {
   NOTE TO SELF: STOP using req and res in this function, this aint a middleware its
   a FUNCTION >:(
 */
-const verifyRefreshToken = async(refreshToken) => {
+const verifyRefreshToken = (refreshToken) => {
   if(!refreshToken){
     return false;
   }
 
   try{
     let decoded = jwt.verify(refreshToken, config.REFRESH_SECRET_KEY);
-    console.log(decoded);
 
     if(!decoded){
       return false;
     }
 
-    return decoded;
+    return decoded.user;
   } catch(err) {
-    console.log(err);
+    console.log("Error in verifying refresh tokens:", err);
   }
 
 }
