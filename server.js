@@ -3,7 +3,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const app = express();
 const {connectToDb} = require("./src/db/db");
-
+const { extractTokens }= require("./src/middlewares/auth");
 
 // --routers--
 const authRoutes = require("./src/routes/auth");
@@ -19,6 +19,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // Set up view engine for our ejs files
 app.set("view engine", "ejs");
+
+/* this middleware will parse extract both 
+access and refresh tokens from the stringed cookie
+*/ 
+app.use(extractTokens);
+
 
 // --routes--
 app.use("/", authRoutes);
