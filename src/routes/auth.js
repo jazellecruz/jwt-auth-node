@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { findUserFromDb, findUserFromDbWithUsername } = require("../models/users");
-const {generateAccessToken, generateRefreshToken} = require("../utils/jwt");
+const {generateAccessToken, generateRefreshToken, verifyRefreshToken} = require("../utils/jwt");
 
 
 router.get("/login", (req, res) => {
@@ -16,24 +16,19 @@ router.post("/login", async(req, res) => {
     if(!foundUser) {
       res.send("No user found.");
       return;
-    }
 
+    }
     let accessToken = generateAccessToken(foundUser);
     let refreshToken = generateRefreshToken(foundUser);
 
-    let token = JSON.stringify({
-      accessToken: accessToken,
-      refreshToken: refreshToken
-    })
-
-    res.cookie("auth", token, {
+    res.cookie("auth", JSON.stringify(`${accessToken};${refreshToken}`), {
       httpOnly: true,
       secure: true
     })
 
     res.redirect("/secret");
   } catch(err) {
-    console.log(err)
+    console.log("Error in logging user in:", err)
   }
 
 });
@@ -42,7 +37,7 @@ router.post("/login", async(req, res) => {
 router.get("/logout", (req, res) => {
 
   try{
-    res.clearCookie("refresh_token")
+    res.clearCookie("auth")
     .status(200)
     .send("Successfully logged out! 🤘");
   } catch(err) {
@@ -51,18 +46,17 @@ router.get("/logout", (req, res) => {
 
 });
 
-router.post("/refresh-tokens", async(req, res) => {
-
+router.get("/refresh-tokens", async(req, res) => {
   /* 
   HEY YOU! Refresh tokens should be stored and be accessed through an http cookie only >:(
   Since access token is invalid and there is no refresh token present just redirect to login to create new ones 
   */
-  if(!req.cookies.refresh_token) {
+  if(!req.auth.refresh_token) {
     res.redirect("/login");
     return;
   }
 
-  let decoded = verifyRefreshToken(req.cookies.refresh_token);
+  let decoded = await verifyRefreshToken(req.auth.refresh_token);
   
   /* 
   if failed to decode user from token because of invalid refresh token
@@ -84,9 +78,9 @@ router.post("/refresh-tokens", async(req, res) => {
     // if all goes well, make a new token and send in it in a new cookie
     let accessToken = generateAccessToken(foundUser);
 
-    res.send({access_token: accessToken});
+    res.cookie("auth", `${accessToken};${req.auth.refresh_token}`).redirect("/secret");
   } catch(err) {
-    console.log(err)
+    console.log("Error in verifying refresh token:", err)
   }
 
 });
