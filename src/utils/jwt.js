@@ -19,10 +19,6 @@ const generateRefreshToken = (user) => {
   }
 }
 
-/*
-  NOTE TO SELF: STOP using req and res in this function, this aint a middleware its
-  a FUNCTION >:(
-*/
 const verifyRefreshToken = (refreshToken) => {
   if(!refreshToken){
     return false;
@@ -30,7 +26,7 @@ const verifyRefreshToken = (refreshToken) => {
 
   try{
     let decoded = jwt.verify(refreshToken, config.REFRESH_SECRET_KEY);
-
+    console.log(decoded)
     if(!decoded){
       return false;
     }
@@ -42,4 +38,21 @@ const verifyRefreshToken = (refreshToken) => {
 
 }
 
-module.exports = {generateAccessToken, generateRefreshToken, verifyRefreshToken}
+class User {
+  constructor(accessToken, refreshToken) {
+    this.access_token = accessToken || null;
+    this.refresh_token = refreshToken || null
+  }
+
+  hasAccessToken() {
+    /* Using double logical NOT operator ensures we get the
+    correct boolean when checking for tokens*/
+    return !!this.access_token
+  }
+
+  hasRefreshToken() {
+    return !!this.refresh_token
+  }
+}
+
+module.exports = {generateAccessToken, generateRefreshToken, verifyRefreshToken, User}
