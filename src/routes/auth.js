@@ -56,7 +56,7 @@ router.get("/refresh-tokens", async(req, res) => {
   }
 
 
-    let decoded = await verifyRefreshToken(req.auth.refresh_token);
+    let decoded = await verifyRefreshToken(req._auth.refresh_token);
   
     /* 
     if failed to decode user from token because of invalid refresh token
@@ -79,7 +79,7 @@ router.get("/refresh-tokens", async(req, res) => {
     let accessToken = generateAccessToken(foundUser);
 
     // assuming that the refresh token is valid we attach it again in the cookie 
-    res.cookie("auth", `${accessToken};${req.auth.refresh_token}`);
+    res.cookie("auth", `${accessToken};${req._auth.refresh_token}`);
     res.redirect("/secret");
   } catch(err) {
     console.log("Error in verifying refresh token:", err)
