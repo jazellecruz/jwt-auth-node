@@ -70,7 +70,7 @@ const extractTokens = (req, res, next) => {
     let extractedTokens = unstringString(req.cookies.auth);
     extractedTokens = extractedTokens.split(";");
 
-    /* create a new User instance that will save the access and refresh token 
+    /* create a new User instance that will contain the access and refresh token 
     which will be used by our next middlewares for authentication */
     req._auth = new User(extractedTokens[0], extractedTokens[1]);
     
