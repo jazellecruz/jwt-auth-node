@@ -9,15 +9,15 @@ const findUserFromDb = async(username, password) => {
   try{
     let foundUser = await db.promise().query("SELECT * FROM users WHERE username = ?", [username]);
 
-    if(!foundUser[0][0]) return false;
+    if(!foundUser[0][0]) return null;
 
-    let isUserMatched = await bcrypt.compare(password, foundUser[0][0].password);
+    let isPasswordMatched = await bcrypt.compare(password, foundUser[0][0].password);
 
-    if(!isUserMatched) return false;
+    if(!isPasswordMatched) return null;
   
     return foundUser[0][0].username;
   } catch(err) {
-    console.log("Error in validating user:", err)
+    console.error("Error in validating user:", err)
   }
 
 }
@@ -26,11 +26,11 @@ const findUserFromDbWithUsername = async(username) => {
   try{
     let foundUser = await db.promise().query("SELECT * FROM users WHERE username = ?", [username]);
 
-    if(!foundUser[0][0]) return false;
+    if(!foundUser[0][0]) return null;
   
     return foundUser[0][0].username;
   } catch(err) {
-    console.log("Error in finding user from database:", err)
+    console.error("Error in finding user from database:", err)
   }
 
 }

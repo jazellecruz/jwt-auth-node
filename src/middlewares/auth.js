@@ -3,13 +3,15 @@ const config = require("../config/config");
 const {unstringString} = require("../utils/utils");
 const { User } = require("../utils/jwt");
 
-const isUserAuthenticated = async(req, res, next) => {
+const isUserAuthenticated = (req, res, next) => {
   let accessToken;
 
   // the tokens we parsed and extracted from cookie and attached to req.auth
   if(req._auth.hasAccessToken()) {
     accessToken = req._auth.access_token
   }
+
+  // --- FOR REQUESTS THAT ONLY HAVE ACCESS TOKEN FOR AUTHENTICATION ---
 
   // authorization through headers
   if(req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
@@ -47,9 +49,7 @@ const isUserAuthenticated = async(req, res, next) => {
       return;
     }
 
-    // use a logging library for err if you want,
-    // this is just for demonstration purposes
-    console.log("Error in authenticating access token:", err);
+    console.error("Error in authenticating access token:", err);
   }
 
 }
@@ -74,10 +74,9 @@ const extractTokens = (req, res, next) => {
     which will be used by our next middlewares for authentication */
     req._auth = new User(extractedTokens[0], extractedTokens[1]);
     
-
     next();
   } catch(err) {
-    console.log("Error in extracting token from cookie:", err);
+    console.error("Error in extracting token from cookie:", err);
   }
 
 }

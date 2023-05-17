@@ -6,7 +6,7 @@ const generateAccessToken = (user) => {
     let accessToken = jwt.sign({user: user}, config.ACCESS_SECRET_KEY, { expiresIn: '10s' });
     return accessToken;
   } catch(err) {
-    console.log("Error in generating access token:", err)
+    console.error("Error in generating access token:", err)
   }
 }
 
@@ -15,25 +15,24 @@ const generateRefreshToken = (user) => {
     let refreshToken = jwt.sign({user: user}, config.REFRESH_SECRET_KEY, { expiresIn: "7d" });
     return refreshToken;
   } catch(err) {
-    console.log("Error in generating refresh token:", err)
+    console.error("Error in generating refresh token:", err)
   }
 }
 
 const verifyRefreshToken = (refreshToken) => {
   if(!refreshToken){
-    return false;
+    return null;
   }
 
   try{
     let decoded = jwt.verify(refreshToken, config.REFRESH_SECRET_KEY);
-    console.log(decoded)
     if(!decoded){
-      return false;
+      return null;
     }
 
     return decoded.user;
   } catch(err) {
-    console.log("Error in verifying refresh tokens:", err);
+    console.error("Error in verifying refresh tokens:", err);
   }
 
 }

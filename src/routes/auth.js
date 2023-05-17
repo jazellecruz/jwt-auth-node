@@ -28,7 +28,7 @@ router.post("/login", async(req, res) => {
 
     res.redirect("/secret");
   } catch(err) {
-    console.log("Error in logging user in:", err)
+    console.error("Error in logging user in:", err)
   }
 
 });
@@ -41,11 +41,13 @@ router.get("/logout", (req, res) => {
     .status(200)
     .send("Successfully logged out! 🤘");
   } catch(err) {
-    console.log("Error in logging out user:", err);
+    console.error("Error in logging out user:", err);
   }
 
 });
 
+
+// Route for validating refresh tokens
 router.get("/refresh-tokens", async(req, res) => {
   
   // HEY YOU! Refresh tokens should be stored and be accessed through an http cookie only >:(
@@ -55,8 +57,9 @@ router.get("/refresh-tokens", async(req, res) => {
     return;
   }
 
-
-    let decoded = await verifyRefreshToken(req._auth.refresh_token);
+  try {
+    let refreshToken = req._auth.refresh_token
+    let decoded = await verifyRefreshToken(refreshToken);
   
     /* 
     if failed to decode user from token because of invalid refresh token
@@ -66,23 +69,22 @@ router.get("/refresh-tokens", async(req, res) => {
       res.redirect("/login");
       return;
     }
-    
-    try{
+
     let foundUser = await findUserFromDbWithUsername(decoded);
 
     if(!foundUser){
-      res.send("Failed to validate user with refresh token");
+      res.status(401).send("Failed to validate user with refresh token");
       return;
     }
 
     // if all goes well, make a new token and send in it in a new cookie
     let accessToken = generateAccessToken(foundUser);
 
-    // assuming that the refresh token is valid we attach it again in the cookie 
-    res.cookie("auth", `${accessToken};${req._auth.refresh_token}`);
+    // assuming that the refresh token is valid we re-attach it to the cookie 
+    res.cookie("auth", `${accessToken};${refreshToken}`);
     res.redirect("/secret");
   } catch(err) {
-    console.log("Error in verifying refresh token:", err)
+    console.error("Error in verifying refresh token:", err)
   }
 
 });
